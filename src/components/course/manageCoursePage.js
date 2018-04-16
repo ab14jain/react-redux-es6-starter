@@ -1,33 +1,58 @@
-import React from 'react';
-import {connect} from 'react-redux';
+import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 import * as courseAction from '../../actions/courseActions';
 import { bindActionCreators } from 'redux';
+import CourseForm from './CourseForm'
 
-
-class ManageCoursePage extends React.Component{
-    constructor(props, context){
-        super(props, context);        
+class ManageCoursePage extends React.Component {
+    constructor(props, context) {
+        super(props, context);
+        this.state = {
+            course: Object.assign({}, this.props.course),
+            errors: {}
+        }
+        this.updateCourseState = this.updateCourseState.bind(this);
     }
 
-    render(){        
-        return(  
-            <h1>Manage Course</h1>          
+    updateCourseState(event){
+        const field = event.target.name;
+        let course = this.state.course;
+        course[field] = event.target.value;
+        return this.setState({course: course});
+    }
+    render() {
+        return (
+            <CourseForm
+                allAuthors={this.props.authors}
+                onChange={this.updateCourseState}
+                course={this.state.course}
+                errors={this.state.errors}
+            />
         )
     }
 }
 
-ManageCoursePage.PropTypes = {
-    //propsType
+ManageCoursePage.propTypes = {
+    course: PropTypes.object.isRequired,
+    authors: PropTypes.array.isRequired
 }
 
-function mapStateToProp(state, ownProps){
-    return{
-        state: state
+function mapStateToProp(state, ownProps) {
+    let course = { id: '', watchHref: '', title: '', authorId: '', length: '', category: '' };
+    const authorsFormattedForDropdown = state.authors.map(author => {
+        return {
+            value: author.id,
+            text: author.firstName + ' ' + author.lastName
+        }
+    })
+    return {
+        course: course,
+        authors: authorsFormattedForDropdown
     }
 }
 
-function mapDispatchToProps(dispatch){
-    return {        
+function mapDispatchToProps(dispatch) {
+    return {
         actions: bindActionCreators(courseAction, dispatch)
     }
 }
